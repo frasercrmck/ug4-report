@@ -1,0 +1,35 @@
+\section{Dalvik Exectuable Parsing}
+
+The first step in designing a compiler is naturally the parsing of the input language, which in our case is the Dalvik executable file format. On examining the file structure, we are able to see that the language is context-sensitive, according to the definition given by the the Chomsky hierarchy of formal grammars. This is the case since each main section of data is located at a specific offset into the file, given in an initial header item. Furthermore, each section is broken down into subsections, all at offsets given elsewhere in the file. This means that we are unable to use the majority of parser generators for this section of the compilation process. These tools, which, given a formal definition of a language, generate the source code of a parser which can then be used as a component in the compiler toolchain. The drawback is that many of these are unable to handle context-sensitive languages.
+
+% Code generator that can handle context-sensitive grammars?
+
+It is therefore simpler that we design a custom parser for the Dalvik format which takes a Dalvik executable file as input and constructs an internal representation that we can pass on to the later components of the compiler. Hence, a custom parser is written in C++. The reason for using C++ is that we will be interfacing with the LLVM C++ API for generating code further down the line. The job of the parser is twofold: it traverses the input file in order, both keeping track of the various data sections it comes across for later use, and validating that the file is a valid Dalvik executable file. The file is input as a stream of bytes, and is broken down at the topmost level by the specification given in Table~\ref{dalvik_layout}:
+
+We can see by looking at Table \ref{dalvik_layout} that the file format would be impossible to define in a context-free sense, given the self-referential nature of the structure. This layout, however, renders it relatively straightforward to parse. It is a matter of traversing the input in accordance with the file structure as documented online\footnotemark \footnotetext[1]{http://source.android.com/tech/dalvik/dex-format.html}, and keeping a track of the various data structures. The resulting internal format is similar to that of the input file, albeit with several changes. Some details are stored implicitly, such as the size of a given list of items. The data is additionally made more encapsulated than it is in the raw file format; items that usually lie in the `data' area of the file are moved to their relative `superclasses'.
+
+\begin{center}
+\begin{table}[htbp]
+    \begin{tabular}{ | l | p{10cm} | } \hline
+    Name 		& Description \\ \hline
+    header		&	Lists the offsets into the file at which the following sections can be found, as well as additional information about the file. \\ \hline
+	string\_ids	&	Lists the strings used by the file, whether used in internal naming or as constant data as used in code. Given in order by string contents. \\ \hline
+	type\_ids	&	Lists the type identifiers used by the file (whether classes, arrays or primitives), whether defined in the file or not. Given in order by index into the string\_ids section. \\ \hline
+	proto\_ids	&	Lists the method prototypes refered to by the file. Given in order by the return type's index into the type\_ids section. \\ \hline
+	field\_ids	&	Lists the field identifiers used by the file, whether defined in the file or not. Given in order by the defining type's index into the type\_ids section. \\ \hline
+	method\_ids	&	Lists the methods refered to by the file, whether defined in the file or not (\ie Java standard library functions).
+					Given in order by the return type's index into the type\_ids section. \\ \hline
+	class\_defs	&	Lists the class definitions, such that a class's superclass and interfaces are listed earlier that the referring class. \\ \hline
+	data		&	Data area, which gives support for the items listed above. \\ \hline
+	link\_data	&	Data used in statically linked files. \\ \hline
+    \end{tabular}
+    
+    \caption{Layout of Dalvik executable format}
+    \label{dalvik_layout}
+    
+\end{table}
+\end{center}
+
+\newpage
+
+Some details of the Dalvik file are left out for the purposes of this compiler. The debug information stored about each method's code item is ignored, as it serves no purpose in the translation to LLVM intermediate representation. Likewise, the annotation information for each class definition is deemed as unnecessary.

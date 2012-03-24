@@ -1,0 +1,43 @@
+\section{Inheritance}
+
+Object-oriented programming languages revolve around the ability for one class to reuse the behavior and attributes of another by \textit{inheriting} the data from a base class, also known as a superclass. The translation of this concept to LLVM bytecode proves a challenge to the compiler writer, since LLVM has no notion of classes. The closest that LLVM comes to having class behaviour  in the object-oriented sense comes through the use of structs.
+
+Structs are analogous to the structs present in the C programming language; they are structured types that combine a set of fields into a single object. Much like the C structs (and unlike those found in C++), they are not permitted to have functions as struct members, nor do they directly support inheritance. These two omitted features are the biggest difference between structs and objects as found in objected-oriented languagese.
+
+Structs are, however, the closest LLVM comes to having `classes'. We must, therefore, manipulate these structs into representing the classes found in our Dalvik program. Fortunately there are ways around the shortcomings brought about by LLVM bytecode's low-level approach to code representation. Instead of associating methods with a class definition, methods are instead implemented globally in LLVM, without an associated object attached to them. To achieve the same functionality an object-specific method has with regards to the access of the object's attributes and other functions, LLVM methods are passed a `this' pointer if they are non-static. The pointer represents the instance of the class that the method intended to be a member of, allowing the method to access the correct data from that instance without breaking the priniciples of the object orientation paradigm.
+
+The other challenge to tackle is that of object inheritance. Inheritance is effectively achieved through the same paradigm a C programmer might use to accomplish the same goal:
+
+\lstset{
+	language=C,
+	basicstyle=\small,
+	stringstyle=\ttfamily
+}
+
+\begin{lstlisting}[frame=single, numbers=left, numberstyle=\tiny, title=C code]
+typedef struct {
+    // base members
+} Base;
+
+typedef struct {
+    Base base;  
+    // derived members   
+} Derived;
+
+...
+
+Derived *d;
+Base *b = (Base *)d;
+\end{lstlisting}
+
+\begin{lstlisting}[frame=single, numbers=left, numberstyle=\tiny, title= LLVM IR]
+%Base = type { /* base members */ }
+%Derived = type { %Base, /* derived members */ }
+
+...
+
+%0 = alloca %Derived
+%1 = bitcast %Derived* %0 to %Base*
+\end{lstlisting}
+
+We can see at line 6 of the C code - and at line 2 of the LLVM bytecode - that each struct features as its first field an instance of the super class. This way it can be cast to this class at runtime, as we do at lines 13 and 7 of each respective code sample. The object can then be used as if it were an instance of the super class, giving it access to the necessary data.

@@ -1,0 +1,23 @@
+\chapter{Design}
+
+This compiler will adhere to the general design of any compiler. We will first parse the input file, and construct an intermediate representation that we will then use to generate our target language: LLVM bytecode.
+
+While most compilers must check the source program adheres to the syntax of the language, we are able to skip on a lot of this validation. Since the Dalvik executable format is itself compiled from a dialect of Java, we could assume that it is syntactically and semantically correct. However, this leaves us open to violations by hacking the Dalvik file after it has been translated from the Java .class files. Nevertheless, the rigidly structured nature of the Dalvik executable format (as described in the next section) means that a lot of the syntactic checking is done for us in the structure of the file.
+
+Again, unlike most compilers, we will not optimize the Dalvik executable file between the parsing and code generation stages, as we will rely on LLVM's powerful optimizations to do the work for us. We can also assume that the source program as given to us has been optimized twice already: firstly in the compilation of the Java package, and secondly in the translation from the .class files to the Dalvik executable file.
+ 
+The final stage of the compilation process is code generation, and we will once again perform this much like any other compiler would. The Dalvik executable format already uses registers in its code, so we do not have to undergo the problem of register allocation, as that has already been accomplished for us. The normally complex task of instruction selection has also been completed for us by the dx tool. This simplifies the code generation task significantly.
+ 
+\section{Platform}
+
+Whilst Dalvik's application model is a Java-like, it bears no relationship with any Java standard. The fundamental differences between the two platforms become apparent when we look under the hood and examine the instruction sets and the class of machines under which each application platform is defined.
+
+The standard JVM is stack-based. Operations remove inputs from the stack and push result(s) back onto the stack. One stack level can hold any type (char to float), and double and long values need two consecutive stack levels.
+
+Dalvik, on the other hand, is a more traditional register-based machine. The virtual machine holds a set of virtual registers: theoretically up to 64k, although most application programs will use far fewer than the first 256. There are some similarities, however, in that, like the Java stack machine, one register can hold any type, and both double and long values need to be stored in two consecutive registers.
+
+The advantages and disadvantages of using a register machine over a stack-machine-based approach are numerous, and is a widely contested topic in the field. One argument for the use of a register machine is that is more closely mimics current processors, which are almost always regsiter-based machines. In this way, it can be simpler to create effective optimizations for register-based code quickly. Additionally, a stack-based machine will likely perform many more memory operations for the popping and push of stack values, which is likely to slow down performance. Studies have shown that a registered-based architecture requires an average of 47\% fewer executed VM instructions than stack-based architecture\cite{vmshowdown}, and that register code is 25\% larger than the equivalence stack machine code\cite{vmshowdown}. However, the cost of fetching more VM instructions on account of larger code size involves only 1.07\% extra real machine loads per virtual machine instruction\cite{vmshowdown}, a negligable result. The study concluded by reporting that the overall performance of the register-based virtual machine is that it takes 26.5\% less time to execute standard benchmarks, on average\cite{vmshowdown}.
+
+However, stack-based virtual machines are simpler and the instructions are more compact, as the need to decode and encode operand values is removed. A high-performance stack-based virtual machine like the Java virtual machine, is unlikely to rely on memory accesses to access its stack values and will instead promote areas of the stack to register values, and so the performance gap is not so significant as it may seem in the \naive approach. Additionally, the need to write register allocation routines is removed, an NP-complete problem in itself\cite{chaitin82}.
+
+With these two differing approaches, it comes as no surprise that the Java and Dalvik virtual machines feature two different instruction sets.

@@ -1,0 +1,46 @@
+\documentclass[twoside,abbrevs,bsc,logo,notimes]{./styles/infthesis}
+
+% Packages
+\usepackage{graphicx}
+\usepackage{abbrevs}
+\usepackage{acronym}
+\usepackage{listings}
+
+\title{An LLVM-based Just-in-time Compiler For The Dalvik Virtual Machine In Android}
+\author{Fraser Cormack}
+\course{Computer Science And Mathematics}
+\project{4th Year Project Report}
+\submityear{2012}
+%\graduationdate{2012}
+
+\includeonly{sections/implementation}
+
+\begin{document}
+
+    \begin{preliminary}
+        % Title Page
+        \maketitle
+
+        % Preamble
+        \include{sections/misc/acknowledgements}
+        \standarddeclaration
+        \include{sections/misc/dedication}
+        \tableofcontents
+	    %\listoffigures
+	\end{preliminary}
+
+	% Chapters
+	\include{sections/intro}
+	\include{sections/design}	
+	\include{sections/implementation}
+	\include{sections/evaluation}
+	\include{sections/future}
+	\include{sections/conclusion}
+	
+	\appendix
+	\include{sections/appendix}
+
+	% Bibliography
+	\bibliographystyle{plain}
+	\bibliography{refs/bibliography}
+\end{document}
