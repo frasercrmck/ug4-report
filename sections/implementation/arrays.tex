@@ -1,1 +1,119 @@
 \section{Arrays}
+\label{sec:arrays}
+
+Given the widespread use of arrays in computer programs, it is no surprise that they are encountered frequently when translating Dalvik bytecode to LLVM intermediate representation. Once again there is disparity between how the two languages handle these data structures, stemming from the difference between the two programming paradigms that they adhere to. The generation of correct and efficient array code is key to achieving good performance in any compiler.
+
+LLVM has two methods for handling array representations. The first is the aggregate array type, a form familiar to the high-level programmer:
+
+\lstset{
+	language=Assembly,
+	basicstyle=\small,
+	stringstyle=\ttfamily
+}
+\begin{lstlisting}[frame=single]
+%array = [<# elements> x <element type>]
+\end{lstlisting}
+
+The second is to represent arrays using pointers, as C or C++ programmers might be accustomed to:
+
+\begin{lstlisting}[frame=single]
+%array = <element type>*
+\end{lstlisting}
+
+Similar to the C programming language, these two representations of arrays are equivalent, as an array decays into a pointer to its first element. There are, however, differences between these two representations, and each has their own suitabilities for certain applications. We need to weigh up these options before we decide how to implement Dalvik arrays in LLVM bytecode. Let us consider the arrays we deal with, and examine how they are used in a Dalvik executable program.
+
+We can encounter arrays in Dalvik programs in one of two ways: the first is when they are declared and defined in a method body. Shown in Listing \ref{lst:java_array1} are two examples of creating new arrays inside a Java method. Notice how in both cases we are directly specifying a length for each array within the defintion, whether explicitly or implicitly as in the former and latter definitions, respectively.
+
+\lstset{
+	language=Java,
+	basicstyle=\small,
+	stringstyle=\ttfamily
+}
+\begin{lstlisting}[frame=single, caption={Java arrays}, label={lst:java_array1}]
+int a[] = new int[3];   // Declare
+int b[] = {1, 2, 3};    // Declare and initialize with literal
+\end{lstlisting}
+
+The second way in which arrays can feature in Dalvik executable programs is when they exist as members of a class definition. Listing \ref{lst:java_array2} gives an example of an array being declared and defined as a private member of the class \verb|MyClass|:
+
+\begin{lstlisting}[frame=single, caption={Java arrays}, label={lst:java_array2}]
+class MyClass {
+  private int a[] = {1, 2, 3};
+  MyClass() { } // Class constructor method
+}
+\end{lstlisting}
+
+Although we are once again implicitly specifying the array's length in the definition of this class variable, there one important distinction: Dalvik only handles the \textit{declaration} at class-level, implementing the definition inside the constructor method. This means that the array length is unknown to us as we come across its definition in the class data section of the Dalvik executable file. In the constructor method for the class, a local fixed-length array (similar to the ones in Listing \ref{lst:java_array1}) is created then `pushed' to the appropatie class variable.
+
+We are left with a choice as to how we represent and implement both types of array in LLVM bytecode. The natural and most intuitive way of representing arrays of the sort shown in Listing \ref{lst:java_array1} is to equate them with the fixed-length LLVM arrays, as their length is specified at declaration-time. This form not only holds the length information in the array, but handles the memory management for us too, allocating enough memory for all array elements.
+
+\lstset{
+	language=Assembly,
+	basicstyle=\small,
+	stringstyle=\ttfamily
+}
+
+\begin{lstlisting}[frame=single, caption={LLVM fixed-length array}, label=lst:llvm_fix]
+%a = [3 x i32]
+\end{lstlisting}
+
+The second sort of arrays, those without a known length at declaration-time, could indeed be represented by the same notation as those with a fixed length. LLVM allows arrays to be declared with a length of 0 to indicate a variable-sized array.
+
+\begin{lstlisting}[frame=single, caption={LLVM variable-length array}, label=lst:llvm_var]
+%a = [0 x i32]
+\end{lstlisting}
+
+Unlike arrays that are declared with a size associated with them, the variable-length array declaration does \textit{not} allocate enough memory for its elements, so we need to implement the memory management for such arrays ourselves. Memory allocation comes in the form of the \verb|malloc| function, which works in the same way as the version from the C programming language. Once we have learned the length of array - but after the initial declaration - we need to allocate enough memory on the heap for the entire array.
+
+The following examples detail code from the C programming language (Listing \ref{lst:malloc_c}) and its translation into LLVM bytecode (Listing \ref{lst:malloc_llvm}). We declare a pointer to an integer, which is analogous to a variable-length array, as explained earlier in the Section. Later in the program, once we learn of the length we want to give this array - 3 in our case - we call the \verb|malloc| function enough space for $3 \times sizeof(int)$, or 12 bytes. We must then cast the result to an integer pointer and store it in our array variable:
+
+\lstset{
+	language=C,
+	basicstyle=\small,
+	stringstyle=\ttfamily
+}
+\begin{lstlisting}[frame=single, numbers=left, numberstyle=\tiny, caption={C malloc}, label=lst:malloc_c]
+int* a;
+void* res = malloc(3 * sizeof(int));
+int* cast_res = (int*)res;
+a = cast_res;
+\end{lstlisting}
+
+
+\lstset{
+	language=Assembly,
+	basicstyle=\small,
+	stringstyle=\ttfamily
+}
+\begin{lstlisting}[frame=single, numbers=left, numberstyle=\tiny, caption={LLVM malloc}, label=lst:malloc_llvm]
+%a = alloca i32*
+%res = call noalias i8* @malloc(i64 12) nounwind
+%cast_res = bitcast i8* %res to i32*
+store i32* %cast_res, i32** %a
+\end{lstlisting}
+
+The C code in Listing \ref{lst:malloc_c} uses a pointer to represent a variable-length array, and so we choose to do the same in our LLVM bytecode translation. The pointer representation is more intuitive and more closely-resembles the memory-allocation paradigm used by other programming languages over the variable-length array notation given earlier. We now have two representations for the two different types of array, the fixed-length array notation (Listing \ref{lst:llvm_fix}) for constant and fixed-length arrays, and pointer notation (Listing \ref{lst:llvm_ptr}) for variable-length arrays whose size are unknown at declaration-time.
+
+\begin{lstlisting}[frame=single, caption={LLVM pointer array}, label=lst:llvm_ptr]
+%a = i32*
+\end{lstlisting}
+
+When it comes to assigning data values to the now-allocated variable-length array, we `copy' a local fixed-length array to it. At this point the disparity between Dalvik and LLVM bytecode shows itself once again. In Dalvik bytecode we simply call the \verb|iput-object| instruction, which copies the register containing our local array to another register containing the target class variable.
+
+LLVM does not provide such functionality for us, being a lower-level representation. In order to copy a block of memory to another we use the LLVM llvm.memcpy instrinsic function. One of the function's parameters is the number of bytes to copy over the the destination. We naturally want to copy the entire array over to our variable-length array, however, we no longer have the information on the length of the array to copy, as the current instruction, the \verb|iput-object| instruction provides no such data.
+
+Note that in this example we \textit{do} have sufficient data to be able to infer the length of the array to copy, as the source is a fixed-length array. However, the \verb|iput-object| instruction is used in many other applications, including when we want to put a variable-length array to another. We want to be able to abstract this instruction and cover all cases in which it is used.
+
+
+We therefore need a method by which we can always determine the size of an array at every reference to it. The solution is to combine a field containing the length of the array with the data structure itself. As soon as we learn of an array's length, we store it in the `size' field, and all subsequent instructions involving the array can access the length in order to perform bounds checking, to check how many bytes to allocate or copy, etc.
+
+\lstset{
+	language=Assembly,
+	basicstyle=\small,
+	stringstyle=\ttfamily
+}
+\begin{lstlisting}[frame=single]
+%struct_array = { i32, i32* }
+\end{lstlisting}
+
+Given the more complicated memory management involved in implementing arrays in LLVM bytecode as opposed to Dalvik bytecode, several cutbacks were made. The first is that arrays of non-primitive types such as Objects are unsupported in this compiler prototype. Multidimensional arrays are also unsupported in order to provide more focus on other areas. These two array subtypes are entirely possible in LLVM, and would be important additions in future versions of the compiler.

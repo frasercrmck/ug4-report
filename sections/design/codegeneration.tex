@@ -1,0 +1,27 @@
+\section{Code Generation}
+\label{sec:codegen}
+
+The final stage of the compilation process is code generation, and we will once again perform this much like any other compiler would. The Dalvik executable format already uses registers in its code, so we do not have to undergo the problem of register allocation, as that has already been accomplished for us. The normally complex task of instruction selection has also been completed for us by the dx tool. This simplifies the code generation task significantly.
+
+Now that we have extracted all of the necessary information about the Dalvik execuatable file to be translated, we can continue to the code generation step of the compilation process. At this stage of the toolchain we traverse this file representation and build the components that LLVM uses to generate code. The outcome of this stage will be an LLVM module of the given Dalvik executable file. The `Module' is an LLVM construct that represents the top level structure in an LLVM program. It is essentially a translation unit of the original program or a combination of several translation units merged together by the linker. In our case it will be a join of a translation of the original Dalvik program with a custom LLVM Java library.
+
+We can subdivide the task of translation into the 3 key areas that make up the resulting LLVM module:
+
+\begin{itemize}
+	\item Global Variables
+	\item Structs
+	\item Functions
+\end{itemize}
+
+We shall now examine these sections, how they tie with the original Dalvik program, and the methods used to generate them.
+
+\subsection*{Global Variables}
+
+Java, and by extension Dalvik, doesn't feature global variables. However, this area of the LLVM module is used for static class fields, as well as strings.
+
+\subsection*{Structs}
+
+
+\subsection*{Functions}
+
+

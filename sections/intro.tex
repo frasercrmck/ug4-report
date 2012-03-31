@@ -1,18 +1,13 @@
 \chapter{Introduction}
 
-In recent years, our world has seen a continual shift towards mobile computing and technologies. This transition from the dominance of traditional desktop environments to a mobile-oriented computing world means that smartphones, tablets, and netbooks are playing an ever-increasing role in our society. As a result, there is currently great demand for achieving the best performance possible out of these devices. Aside from the obvious performance gains such as increasing processor speed and memory capacity, there are also significant performance increases to be found at the software level in the way of optimization.
+In recent years, our world has seen a continual shift towards mobile computing and technologies. This transition from the dominance of traditional desktop environments to a mobile-oriented computing world means that smartphones, tablets, and netbooks are playing an ever-increasing role in our society. As a result, there is currently great demand for achieving the best performance possible out of these devices. Aside from the obvious performance gains such as increasing processor speed and memory capacity, there are also significant performance increases to be found at the software level in the way of code optimization.
 
-\section{Dalvik}
-
-Dalvik is the process virtual machine in Google's Android operating system. It is therefore at the very heart of every Google Android phone, the best-selling smartphone on the market\footnotemark \footnotetext[1]{http://uk.reuters.com/article/2011/01/31/oukin-uk-google-nokia-idUKTRE70U1YT20110131}.
-
-
-Programs are typically written in a dialect of the Java programming language, and are then compiled to Java bytecode, as standard. In order to be readable by the Dalvik virtual machine over the Java virtual machine, the .class files are converted into the Dalvik executable (.dex) format. Multiple .class files consitute a single Dalvik executable file. The Dalvik executable format is designed to be run on devices constained in processor and memory speed.
-
-\section{LLVM}
-
-The Low Level Virtual Machine (LLVM) is a compiler infrastructure which is designed for compile-time, link-time, run-time and `idle-time' optimization of programs. Although originally written in C++, it has since spawned a variety of front-ends, including Java, Python, Ruby, Objective-C, and others.
+\section{Motivation}
 
 \section{Goals}
 
 The goal of this project is to have Dalvik executable files able to be translated into LLVM bytecode, from where they can be optimized using LLVM's vast suite of optimization tools and run just-in-time on the LLVM JIT compiler. This paves the way for an LLVM-based compiler to be installed into the Dalvik virtual machine in future work. With this achieved, we will hopefully accomplish an increase in the performance of Dalvik executable files and programs on the Android OS.
+
+\section{Overview}
+
+Chapter \ref{chap:related} will give a review of the work and literature related to this project. Chapter \ref{chap:background} will then cover and provide background on the main tools involved in building this compiler. We will then cover the overall design of the compiler in Chapter \ref{chap:design}, and the main concepts and difficulties involved in the build in Chapter \ref{chap:implementation}. An evaluation and emperical results will be presented in Chapter \ref{chap:evaluation}, and Chapter \ref{chap:conclusion} will conclude the report.

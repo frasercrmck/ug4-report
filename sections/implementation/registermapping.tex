@@ -1,1 +1,6 @@
 \section{Register Mapping}
+\label{sec:regmap}
+
+Dalvik registers present more problems to the code generation process than that of dynamic typing as detailed in Section \ref{sec:dyntype}. All registers in the Dalvik virtual machine are 32-bit wide. This means that for 64-bit types such as long integers and double-precision floating-point numbers, two adjacent register pairs are used to contain the value.
+
+LLVM, on the other hand, supports both wide 64-bit types out of the box. It would be unwise and inexpedient not to take advantage of this feature. This would introduce a discrepancy between how we would map register indices to their variables in our internal representation, if care was not taken. We therefore create a hashmap in our internal representation that takes each Dalvik register index and maps it to an LLVM value.

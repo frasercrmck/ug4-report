@@ -1,0 +1,84 @@
+Notes on Dalvik
+
+Emphasis on code/data sharing to reduce memory useage: extremely compact.
+
+consist of byte code, processed by host-specific interpreter
+highly-tuned very faster interpreter (2x similar (java interpreter))
+typically less than 1/3 time spent in interpreter
+os and performance-crit library natively compiled
+good enough for most.
+
+Performance a problem for compute intensice applications
+partial sol was release of android native dev. kit (NDK), which allows Dalvik apps to call out to statically-compiled methods.
+other sol was JIT compiler
+translates byte code to optimized native code at run time
+ 
+interpreter environment requires less memory than natively-compiled one
+
+jit interprets code, finds often-run bits, compute-intensiv, hot chunks, pulls outs, compi.les them in native, next time run do direct execution
+
+Dalvik JIT:
+wide variety
+when: install , launch method invoke, instruction fetch time
+what: whole prog, shared lib, page, method, trace, single ins.
+
+Had to fit need of mobile computing:
+Minimal additional memory usage
+coexist with Dalvik constainter-based security model
+Quick delivery of performance boost
+Smooth transition between interpretation & compiled code
+
+method jit:
+best optimization window
+
+trace-based JIT:
+best speed/space tradeoff
+went with trace-based
+
+minimizing memory usage critical for mobiles
+leave open possibility of supplementing with method-based JIT
+    two can co-exist
+    a mobile device looks more like a server when its plugged in
+        trace jit when running on battery
+        method jit in background while charging
+        
+per-process translation caches (sharing only within security sandboxes)
+simples traces - 1 - 2 basic blocks long
+local opts:
+    register promotion
+    load/store elimination
+    redundant null-check elimination
+    heuristic scheduling
+loop optimizations
+    simple loop detection
+    invariant code motion
+    induction variable optimization
+    
+cpu-intensive benchmark results
+
+2 - 5 times performance boost on benchmarks over dalvik interpreter
+low memory usage: couple hundred kilobytes on heap for profiling system, jit compiler, and memory for translations. small number compared with traditional jits
+
+memory in dex file is saved via
+minimal repetition
+per-type pools (implicit typing)
+implicit labeling
+
+common system libraries:
+U 21445329 100%
+J 10662048 50%
+D 10311972 48%
+
+web browser app
+U 470312 100%
+J 232065 49%
+D 209248 44%
+
+alarm clock app
+U 119200 100%
+J 61658 52%
+D 53020 44%
+
+D = uncompressed dex file
+
+

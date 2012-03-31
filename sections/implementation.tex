@@ -1,6 +1,11 @@
 \chapter{Implementation}
+\label{chap:implementation}
 
 Mapping from one programming paradigm to another presents numerous challenges to the compiler writer. This section will highlight the main challenges encountered in the mapping from the object-oriented Dalvik executable format to the lower-level LLVM intermediate representation.
+
+Note that, for brevity, code samples in this chapter will be psuedo-versions of their respective languages, and not completely valid blocks of code.
+
+\input{sections/implementation/stack}
 
 \input{sections/implementation/inheritance}
 
@@ -10,14 +15,12 @@ Mapping from one programming paradigm to another presents numerous challenges to
 
 \input{sections/implementation/registermapping}
 
-\input{sections/implementation/stack}
-
 \input{sections/implementation/arrays}
+
+\input{sections/implementation/javalib}
 
 %\input{sections/implementation/parsing}
 
 %\input{sections/implementation/disassembly}
 
 %\input{sections/implementation/codegeneration}
-
-%\input{sections/implementation/javalib}
