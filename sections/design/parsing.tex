@@ -1,4 +1,4 @@
-\section{Dalvik Exectuable Parsing}
+\section{Dalvik Executable Parsing}
 \label{sec:parsing}
 
 The first step in designing a compiler is naturally the parsing of the input language, which in our case is the Dalvik executable file format. On examining the file structure, we are able to see that the language is context-sensitive, according to the definition given by the the Chomsky hierarchy of formal grammars. This is the case since each main section of data is located at a specific offset into the file, given in an initial header item. Furthermore, each section is broken down into subsections, all at offsets given elsewhere in the file. This means that we are unable to use the majority of parser generators for this section of the compilation process. These tools, which, given a formal definition of a language, generate the source code of a parser which can then be used as a component in the compiler toolchain. The drawback is that many of these are unable to handle context-sensitive languages.

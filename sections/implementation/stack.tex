@@ -5,7 +5,7 @@ LLVM intermediate representation is written in static single assignment (SSA) fo
 
 To this end, we instead allocate mutable variables on the stack and use load and store instructions to access them. In LLVM, all memory accesses are explicit with load/store instructions. Every read of a value then becomes a load from the stack, and each update of a variable becomes a store to the stack. This paradigm introduces a problem, however; we now introduce a lot of stack traffic for simple and commonplace operations. This is evidently a major performance issue. The LLVM optimiser has a solution to this problem: the `mem2reg' pass. This optimisation promotes memory accesses to register variables and tidies up the loose ends. This is a high-performance optimisation that is used by major LLVM front-ends such as clang and llvm-gcc\footnotemark \footnotetext[1]{http://llvm.org/docs/tutorial/LangImpl7.html\#memory}. We rely on this optimisation pass to keep the generated code performing well.
 
-Care must be taken when traversing a Dalvik method whilst translating it into LLVM bytecode in this way. In translating from Dalvik to LLVM bytecode na\"{\i}vely, difficulties can arise. Allocating a register variable on the stack as soon as the code generator comes across it leads to major problems, specifically when control-flow comes into play.
+Care must be taken while translating a Dalvik method it into LLVM bytecode. If the code generator is too na\"{\i}ve in its instruction selection, difficulties can arise. Allocating a register variable on the stack as soon as the code generator comes across it leads to major problems, specifically when control-flow comes into play.
 
 Let us now consider a simple example in which a problem might arise. Take the sample Java snippet:
 

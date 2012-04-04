@@ -1,9 +1,9 @@
 \section{The Dalvik Executable Format}
 \label{sec:dex}
 
-The Dalvik virtual machines runs applications stored in the Dalvik executable format. As Android has a Java-based application model, programs are written in a dialect of the Java programming language, and are then compiled to Java bytecode. A tool called \verb|dx| is then used to further compile the .class files into the Dalvik executable format. The Dalvik executable format is designed to be run on devices constained in processor and memory speed.
+The Dalvik virtual machines runs applications stored in the Dalvik executable format. As Android has a Java-based application model, programs are written in a dialect of the Java programming language, and are then compiled to Java bytecode. A tool called \verb|dx| is then used to further compile the .class files into the Dalvik executable format. The Dalvik executable format is designed to be run on devices constrained in processor and memory speed.
 
-An Android device with a total of 64 MB system RAM will typically only have 20 MB left over after low-level startup and high-level services have started. This is further reduced to 10 MB of RAM with a large sytem library like Dalvik's \cite{dalvik_int}. The virtual machine, therefore, needs to have a very light memory footprint. Some of the ways in which is achieves this is through the design of the Dalvik executable format, which was designed to be as light-weight as possible. As a result, it is an extremely compact format. An uncompressed Dalvik executable file is around 44\% to 48\% the size of an uncompressed Java .jar file, while a compressed .jar file is around 50\% the size of an uncompressed one \cite{dalvik_int}.
+An Android device with a total of 64 MB system RAM will typically only have 20 MB left over after low-level startup and high-level services have started. This is further reduced to 10 MB of RAM with a large system library like Dalvik's \cite{dalvik_int}. The virtual machine, therefore, needs to have a very light memory footprint. Some of the ways in which it achieves this is through the design of the Dalvik executable format, which was designed to be as light-weight as possible. As a result, it is an extremely compact format. An uncompressed Dalvik executable file is around 44\% to 48\% the size of an uncompressed Java .jar file, while a compressed .jar file is around 50\% the size of an uncompressed one \cite{dalvik_int}.
 
 The Dalvik executable file places a huge emphasis on code and data sharing to reduce memory usage. The file structure is broken down at the topmost level by the specification given in Table~\ref{tab:dalvik_layout}:
 
@@ -14,9 +14,9 @@ The Dalvik executable file places a huge emphasis on code and data sharing to re
     header		&	Lists the offsets into the file at which the following sections can be found, as well as additional information about the file. \\ \hline
 	string\_ids	&	Lists the strings used by the file, whether used in internal naming or as constant data as used in code. Given in order by string contents. \\ \hline
 	type\_ids	&	Lists the type identifiers used by the file (whether classes, arrays or primitives), whether defined in the file or not. Given in order by index into the string\_ids section. \\ \hline
-	proto\_ids	&	Lists the method prototypes refered to by the file. Given in order by the return type's index into the type\_ids section. \\ \hline
+	proto\_ids	&	Lists the method prototypes referred to by the file. Given in order by the return type's index into the type\_ids section. \\ \hline
 	field\_ids	&	Lists the field identifiers used by the file, whether defined in the file or not. Given in order by the defining type's index into the type\_ids section. \\ \hline
-	method\_ids	&	Lists the methods refered to by the file, whether defined in the file or not (\ie Java standard library functions).
+	method\_ids	&	Lists the methods refereed to by the file, whether defined in the file or not (\ie Java standard library functions).
 					Given in order by the return type's index into the type\_ids section. \\ \hline
 	class\_defs	&	Lists the class definitions, such that a class's superclass and interfaces are listed earlier that the referring class. \\ \hline
 	data		&	Data area, which gives support for the items listed above. \\ \hline

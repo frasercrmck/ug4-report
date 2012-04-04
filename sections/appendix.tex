@@ -6,23 +6,6 @@
 	stringstyle=\ttfamily
 }
 
-\begin{lstlisting}[frame=single, title= Array Benchmark]
-public class Array
-{	
-  public static void main(String[] args) {
-		
-    long n = 50000000;
-		
-    int a[] = new int[n];
-		
-    for (int i = 0; i < n; i++)
-      a[i] = (n - i);	
-			
-    for (int k = 0; k < n; k++)
-      System.out.println(a[k]);
-}
-\end{lstlisting}
-
 \begin{lstlisting}[frame=single, title= Factors Benchmark]
 public class Factors
 {
@@ -48,6 +31,25 @@ public class Factors
 }
 \end{lstlisting}
 
+\newpage
+
+\begin{lstlisting}[frame=single, title= Array Benchmark]
+public class Array
+{	
+  public static void main(String[] args) {
+		
+    long n = 50000000;
+		
+    int a[] = new int[n];
+		
+    for (int i = 0; i < n; i++)
+      a[i] = (n - i);	
+			
+    for (int k = 0; k < n; k++)
+      System.out.println(a[k]);
+}
+\end{lstlisting}
+
 \begin{lstlisting}[frame=single, title= Fibonacci Benchmark]
 public class Fibonacci
 {
@@ -67,6 +69,8 @@ public class Fibonacci
   }
 }
 \end{lstlisting}
+
+\newpage
 
 \begin{lstlisting}[frame=single, title= Primes Benchmark]
 public class Primes

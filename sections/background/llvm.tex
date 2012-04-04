@@ -19,7 +19,7 @@ The LLVM Core libraries provide a modern source- and target-independent optimize
 
 \subsubsection*{Clang}
 
-Clang is a new front-end for the C, C++, Objective-C, and Objective-C++ programming languages. Its stengths include its unified parser for all four languages, useful error and warning messages, and its impressive compile speeds: about 3 times faster than GCC when compiling Objective-C code \cite{clang_performance}.
+Clang is a new front-end for the C, C++, Objective-C, and Objective-C++ programming languages. Its strengths include its unified parser for all four languages, useful error and warning messages, and its impressive compile speeds: about 3 times faster than GCC when compiling Objective-C code \cite{clang_performance}.
 
 \subsubsection*{dragonegg}
 
@@ -27,7 +27,7 @@ The dragonegg sub-project unifies the GCC 4.5 parsers with LLVM's optimisers and
 
 \subsection*{LLVM IR}
 
-At its core, LLVM features a single, language-independent virtual instruction set called the LLVM intermediate representation. This intermediate representation is used both as the compiler's internal representation and to communicate code between compiler phases. It is designed to be used in three forms: as an in-memory compiler IR, as an on-disk bitcode representation, and as a human-readable language representation \cite{llvm_ref}. All three forms of LLVM code are equivalent, and this unity across all comiler stages is one of LLVM's strengths. The on-disk bitcode representation in particular is most important to us as it is our target language: it is the code that is executed by the JIT compiler to run our translated Dalvik program.
+At its core, LLVM features a single, language-independent virtual instruction set called the LLVM intermediate representation. This intermediate representation is used both as the compiler's internal representation and to communicate code between compiler phases. It is designed to be used in three forms: as an in-memory compiler IR, as an on-disk bitcode representation, and as a human-readable language representation \cite{llvm_ref}. All three forms of LLVM code are equivalent, and this unity across all compiler stages is one of LLVM's strengths. The on-disk bitcode representation in particular is most important to us as it is our target language: it is the code that is executed by the JIT compiler to run our translated Dalvik program.
 
 One key aspect of the intermediate representation is that it in static single assignment (SSA) form. This is a property of an IR which states that each variable is assigned exactly once. An example of this idea is given below.
 

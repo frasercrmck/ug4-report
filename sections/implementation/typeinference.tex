@@ -1,7 +1,7 @@
 \section{Type Inference}
 \label{sec:typeinf}
 
-One feature of the Dalvik instruction set that poses a problem to the translation process is the Dalvik registers' ability to infer a value's type at run-time. Contrary to traditional, statically-typed languages, a value's type must be explicitly declared at compile time.
+One feature of the Dalvik instruction set that poses a problem to the translation process is the Dalvik registers' ability to infer a value's type at run-time. This is contrary to traditional, statically-typed languages, where a value's type must be explicitly declared at compile time.
 
 \lstset{
 	language=C,
@@ -17,7 +17,7 @@ int negate(int x) {
 }
 \end{lstlisting}
 
-As we can see from the example in the statically-typed C programming language in Listing \ref{lst:static}, the return value of the \verb|negate| function must be declared alongside its type. The the bytecode for the Dalvik virtual machine, however, has no such constraint. For example, the instruction:
+As we can see from the example in the statically-typed C programming language in Listing \ref{lst:static}, the return value of the \verb|negate| function must be declared alongside its type. The bytecode for the Dalvik virtual machine, however, has no such constraint. For example, the instruction:
 
 \lstset{
 	language=Assembly,
@@ -29,9 +29,9 @@ As we can see from the example in the statically-typed C programming language in
 const v0, 0x3FF8000000000000
 \end{lstlisting}
 
-loads the constant literal hexadecimal value of \hex{0x3FF8000000000000} into register \verb|v0|. At this point in the translation process, it is unknown what type of value this register contains - it is dependent on the manner in which it is treated: the value could either be the integer $4.6094342186137 \times 10^{18}$, or the floating-point value of 1.5, depending on the context in which the register value is used in instructions further on in the program.
+loads the constant literal hexadecimal value of \hex{0x3FF8000000000000} into register \verb|v0|. At this point in the translation process, it is unknown what type of value this register contains - it is dependent on the manner in which it is treated: the value could either be the integer $4.6094342186137 \times 10^{18}$, or the floating-point value of 1.5 (according to the IEEE-754 standard), depending on the context in which the register value is used in instructions further on in the program.
 
-LLVM intermediate representation does not feature such a notion. Each type must be explicitly declared statically at compile time, as in the C example shown in Listing \ref{lst:static}. Upon occuring a Dalvik bytecode instruction similar to the one given above, we must be able to deduce its type in order to validly allocate it on the stack, store it there, and be able to load and use that value later in the program. This is information that the Dalvik instruction does not give us at the time it is needed. To this end, we must find a solution to the difference between how each language treats the types of its variables.
+LLVM intermediate representation does not feature such a notion. Each type must be explicitly declared statically at compile time, as in the C example shown in Listing \ref{lst:static}. Upon encountering a Dalvik bytecode instruction similar to the one given above, we must be able to deduce its type in order to validly allocate it on the stack. With a stack allocation in place we are then able to store the value on the stack, and be able to load and use that value later in the program. This is information that the Dalvik instruction does not give us at the time it is needed. To this end, we must find a solution to the difference between how each language treats the types of its variables.
 
 A simple solution to this problem would be to store the literal value of the constant upon finding such an instruction. Later in the program, when the constant value is used in a type-specific way, we could proceed to allocate the value onto the stack and store the literal value that we have been keeping aside. While this method solves the problem at hand, it is not the `cleanest' solution available. Most notably, it tampers with the original instruction order of the program, as the storing of the variable in the register would not occur at the point in the program at which Dalvik intended it.
 
@@ -42,7 +42,7 @@ const v0, 0x3FF8000000000000
 add-float v1, v0, 3.5
 \end{lstlisting}
 
-As previously mentioned, at line 1, upon reading the first instruction, we can not infer the type of the value to be loaded into register 0. Seeing as we are unable to allocate the appropriate stack variable, we take note of the hexadecimal value of the constant, and store it in a hashmap in our internal representation. Additionally, we store 0 to our dummy variable, named \verb|%tmp|. This can be seen in Listing \ref{lst:tmp1}.
+As previously mentioned, at line 1, upon reading the first instruction, we can not infer the type of the value to be loaded into register \verb|v0|. Seeing as we are unable to allocate the appropriate stack variable, we take note of the hexadecimal value of the constant, and store it in a hashmap in our internal representation. Additionally, we store 0 to our dummy variable, named \verb|%tmp|. This can be seen in Listing \ref{lst:tmp1}.
 
 
 \begin{lstlisting}[frame=single, numbers=left, numberstyle=\tiny, caption={LLVM bytecode handling type inference}, label=lst:tmp1]
@@ -54,7 +54,7 @@ label_0:
 }
 \end{lstlisting}
 
-We then arrive at the next instruction, the \verb|add-float| instruction, which adds two floating-point numbers and stores the result in a register. At this stage, we are able to infer that register 0 contains a floating-point value. Since register \verb|v0| is currently associated with a store instruction - the one of 0 to \verb|%tmp| - we know that it must contain a constant value. We can determine this because in normal circumstances a store instruction never returns a value.
+We then arrive at the next instruction, the \verb|add-float| instruction, which adds two floating-point numbers and stores the result in a register. At this stage, we are able to infer that register \verb|v0| contains a floating-point value. Since register \verb|v0| is currently associated with a store instruction - the one of 0 to \verb|%tmp| - we know that it must contain a constant value. We can determine this because in normal circumstances a store instruction never returns a value.
 
 Given that we now have information about the constant's type, we retrieve the hexadecimal value from the hashmap and allocate a new stack variable with the appropriate type. We then wish to store the constant to this newly-allocated variable. However, this leads us again to the problem highlighted earlier in the Section. The LLVM C++ API provides functionality that aids us in retaining the correct order of instructions when facing a Dalvik instruction that uses type inference. LLVM's API gives us the option of \textit{retrospectively replacing} an earlier instruction with another one. Since the variable associated with register \verb|v0| in our intermediate representation is currently pointing to a store instruction, we can replace it with another store instruction, based on our new knowledge of the variable's type. This new instruction stores the literal value - decoded from the hexadecimal according to the type information - to the newly-allocated stack variable.
 
