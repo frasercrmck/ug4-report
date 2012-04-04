@@ -8,5 +8,11 @@
 *.blg
 *.toc
 *.pdf
+*.odt
+*.odg
+*.png
+*.dvi
+*.lol
+*.lot
 
 !styles/**/*.pdf
