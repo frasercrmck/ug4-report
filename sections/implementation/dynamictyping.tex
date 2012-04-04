@@ -11,7 +11,7 @@ To illustrate this example, let us consider how Dalvik might translate the follo
 	stringstyle=\ttfamily
 }
 
-\begin{lstlisting}[frame=single, numbers=left, numberstyle=\tiny, caption={Java code}, label=lst:java_dyn]
+\begin{lstlisting}[frame=single, numbers=left, numberstyle=\tiny, caption={Java Dynamic Typing}, label=lst:java_dyn]
 int x = 0;
 int y = x + 1;
 float z = 5.0f;
@@ -26,7 +26,7 @@ The Dalvik compiler might translate this example into the following Dalvik bytec
 	stringstyle=\ttfamily
 }
 
-\begin{lstlisting}[frame=single, numbers=left, numberstyle=\tiny, caption={Dalvik bytecode}, label=lst:dalvik_dyn]
+\begin{lstlisting}[frame=single, numbers=left, numberstyle=\tiny, caption={Dalvik bytecode for Listing \ref{lst:java_dyn}}, label=lst:dalvik_dyn]
 const v0, 0
 add-int/lit8 v1, v0, 1
 const v0, 4014000000000000
@@ -38,7 +38,7 @@ This dynamic typing of registers is one feature of the Dalvik virtual machine th
 
 Let us now imagine we are traversing our internal representation whilst translating the Dalvik bytecode in Listing \ref{lst:dalvik_dyn} to LLVM intermediate representation.
 
-\begin{lstlisting}[frame=single, numbers=left, numberstyle=\tiny, caption={LLVM IR}, label=lst:llvm_dyn] 
+\begin{lstlisting}[frame=single, numbers=left, numberstyle=\tiny, caption={LLVM IR for Listing \ref{lst:dalvik_dyn}}, label=lst:llvm_dyn] 
 define void @function() {
 allocas:
   %v0 = alloca i32
@@ -55,7 +55,7 @@ We have hereunto translated up to line 2 the Dalvik bytecode in Listing \ref{lst
 
 We therefore must check the type pointed to by the allocation instruction, and check it against the type that we wish to store. If the types are not equal then we must allocate a new variable on the stack with the appropriate type, then point the register variable in the internal representation to this new allocation for future instructions to refer to.
 
-\begin{lstlisting}[frame=single, numbers=left, numberstyle=\tiny, caption={LLVM IR}, label=lst:llvm_dyn2]
+\begin{lstlisting}[frame=single, numbers=left, numberstyle=\tiny, caption={LLVM IR for Listing \ref{lst:dalvik_dyn} (cont.)}, label=lst:llvm_dyn2]
 define void @function() {
 allocas:
   %v0 = alloca i32
@@ -70,4 +70,4 @@ label_0:
 }
 \end{lstlisting}
 
-As shown in the updated version of the LLVM bytecode, Listing \ref{lst:llvm_dyn2}, we have allocated a floating-point type on the stack, and stored the constant value to that. Register \verb|%v0|, as it is represented internally, now points to the new allocation, \verb|%v0_2|, and the old allocation \verb|%v0| is no longer accessible. This is an unfortunate consequence of the method used to deal with the translation of dynamic register types. For example, if the register was later to be used to store another integer, it would be ideal to be able to go back to using the old integer definition of \verb|%v0| instead of allocating another integer on the stack and using that. Fortunately, LLVM's comprehensive suite of optimizations reduces some of the penalty induced here, for example using constant propagation to eliminate a lot of the allocations, stores and loads of constant values that are common in user programs.
+As shown in the updated version of the LLVM bytecode, Listing \ref{lst:llvm_dyn2}, we have allocated a floating-point type on the stack, and stored the constant value to that. Register \verb|%v0|, as it is represented internally, now points to the new allocation, \verb|%v0_2|, and the old allocation \verb|%v0| is no longer accessible. This is an unfortunate consequence of the method used to deal with the translation of dynamic register types. For example, if the register was later to be used to store another integer, it would be ideal to be able to go back to using the old integer definition of \verb|%v0| instead of allocating another integer on the stack and using that. Fortunately, LLVM's comprehensive suite of optimisations reduces some of the penalty induced here, for example using constant propagation to eliminate a lot of the allocations, stores and loads of constant values that are common in user programs.

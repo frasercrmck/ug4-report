@@ -9,7 +9,7 @@ One feature of the Dalvik instruction set that poses a problem to the translatio
 	stringstyle=\ttfamily
 }
 
-\begin{lstlisting}[frame=single, caption={C example}, label=lst:static]
+\begin{lstlisting}[frame=single, caption={C static typing example}, label=lst:static]
 int negate(int x) {
     int result; /* declare integer result */
     result = -x;
@@ -44,7 +44,7 @@ add-float v1, v0, 3.5
 
 As previously mentioned, at line 1, upon reading the first instruction, we can not infer the type of the value to be loaded into register 0. Seeing as we are unable to allocate the appropriate stack variable, we take note of the hexadecimal value of the constant, and store it in a hashmap in our internal representation. Additionally, we store 0 to our dummy variable, named \verb|%tmp|. This can be seen in Listing \ref{lst:tmp1}.
 
-\begin{lstlisting}[frame=single, numbers=left, numberstyle=\tiny, caption={LLVM bytecode}, label=lst:tmp1]
+\begin{lstlisting}[frame=single, numbers=left, numberstyle=\tiny, caption={LLVM bytecode handling type inference}, label=lst:tmp1]
 define void @function() {
 allocas:
   %tmp = alloca i8
@@ -57,7 +57,7 @@ We then arrive at the next instruction, the \verb|add-float| instruction, which 
 
 Given that we now have information about the constant's type, we retrieve the hexadecimal value from the hashmap and allocate a new stack variable with the appropriate type. We then wish to store the constant to this newly-allocated variable. However, this leads us again to the problem highlighted earlier in the Section. The LLVM C++ API provides functionality that aids us in retaining the correct order of instructions when facing a Dalvik instruction that uses type inference. LLVM's API gives us the option of \textit{retrospectively replacing} an earlier instruction with another one. Since the variable associated with register \verb|v0| in our intermediate representation is currently pointing to a store instruction, we can replace it with another store instruction, based on our new knowledge of the variable's type. This new instruction stores the literal value - decoded from the hexadecimal according to the type information - to the newly-allocated stack variable.
 
-\begin{lstlisting}[frame=single, numbers=left, numberstyle=\tiny, caption={LLVM bytecode}, label=lst:tmp2]
+\begin{lstlisting}[frame=single, numbers=left, numberstyle=\tiny, caption={LLVM bytecode handling type inference (cont.)}, label=lst:tmp2]
 define void @function() {
 allocas:
   %tmp = alloca i8
@@ -70,6 +70,6 @@ label_0:
 
 As shown here in the LLVM Bytecode Listing \ref{lst:tmp2}, the original `dummy' store to the variable \verb|%tmp| on line 5 of Listing \ref{lst:tmp1} has been retrospectively replaced with the store to the float pointer on line 6.
 
-The original \verb|%tmp| allocation can then later be optimized out of the LLVM module, as it will not be used by any instruction at the end of the code generation phase.
+The original \verb|%tmp| allocation can then later be optimised out of the LLVM module, as it will not be used by any instruction at the end of the code generation phase.
 
-This gives us a clean solution to the problem of type inference. By replacing temporary instructions so as to maintain instruction order and optimizing the value away before the user sees the resulting LLVM program, we can construct a translation module as close to the original source program as possible.
+This gives us a clean solution to the problem of type inference. By replacing temporary instructions so as to maintain instruction order and optimising the value away before the user sees the resulting LLVM program, we can construct a translation module as close to the original source program as possible.

@@ -3,24 +3,20 @@
 
 This Section lists the programs on which the compiler was evaluated, and the results of the experiements performed. Due to a lack of a capable standard library (see Section \ref{sec:javalib}), the number of eligible real-world, CPU-intensive Java benchmarks was limited. This, coupled with the lack of well-maintained Java front-end for LLVM meant that we instead opted to write our own example programs on which to test the quality of the compiled code. These programs are not `benchmarks' as such, as they do not test a compiler as thoroughly as the SPEC benchmark suite does, for example. They do, however, give a general insight as to the performance of our compiler's resulting code on everyday user applications.
 
-Each program was first compiled to a Dalvik executable file via the standard procedure. Each was written in Java with the Eclipse IDE, then exported as a .jar file. The \verb|dx| tool, as bundled with the Android SDK, was then used to convert the Java archive to the Dalvik executable format. At this point our compiler was run to translated this file to LLVM intermediate representation. This file was treated as our `base' file. In order to examine the effect LLVM's optimization passes had on code performance, the bytecode was further optimized using the LLVM \verb|opt| tool. In particular, three additional bytecode files were produced, each run with a base optimization setting of \verb|-mem2reg -std-compile-opts -std-link-opts|. The \verb|mem2reg| pass, as described earlier, promotes stack values and memory to registers, and is one of the vital optmization passes the compiler relies upon. The \verb|std-compile-opts| pass activates a standard list of compile-time optimization passes. The standard list of link-time optimizations is likewise given by the \verb|std-link-opts| flag.
-
-The three main flags run on the bytecode file were the \verb|-O1|, \verb|-O2|, and \verb|-O3| optimization settings. These roughly correspond to the respective optimization flags offered by the GCC compiler.
-
-Source code for all benchmarks is listed in the Appendix.
+The source code for all benchmarks evaluated on the compiler is listed in the Appendix.
 
 \subsection*{Array}
 
-The `array' benchmark declares an array of 50,000,000 integers, assigns them values and then prints them back out. As arrays and looping are so ubiquitous in programming, it is important to test their performance in order to gain insight into how the compiler performs on common applications. The printing of the array values is important, as although the print function call might become a performance bottleneck in this situation, without it neither the Dalvik or optimized LLVM bytecodes ever actually assign the array values.
+The `array' benchmark declares an array of 50,000,000 integers, assigns them values and then prints them back out. As arrays and looping are so ubiquitous in programming, it is important to test their performance in order to gain insight into how the compiler performs on common applications. The printing of the array values is important, as although the print function call might become a performance bottleneck in this situation, without it neither the Dalvik or optimised LLVM bytecodes ever actually assign the array values.
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=1.0\textwidth]{images/res_array.png}
-    \caption{Execution times of `array' benchmark}
+    \includegraphics[width=1.0\textwidth]{images/array_new.png}
+    \caption[Execution times of `array' benchmark]{Execution times of `array' benchmark. Error bars show min/max runtimes}
     \label{fig:res_array}
 \end{figure}
 
-
+The LLVM bytecode generated from the compiler performed well against the Java version, although the optimised versions did not increase performance significantly. This is unusual behaviour, as the optmized versions removed the indirection involved in the print calls. Rather than calling \verb|java/io/PrintStream/println()|, which in turn calls the external C function \verb|printf()|, the LLVM optimiser instead calls \verb|printf()| alone. This should have increased runtime performance more significantly than it did, although the program was likely too simple for the optimisation to kick in effectively.
 
 \subsection*{Factors}
 
@@ -28,12 +24,12 @@ The `factors' benchmark attempts to find the factors of a given $N$ through a br
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=1.0\textwidth]{images/res_factors.png}
-    \caption{Execution times of `factors' benchmark}
+    \includegraphics[width=1.0\textwidth]{images/factors_new.png}
+    \caption[Execution times of `factors' benchmark]{Execution times of `factors' benchmark. Error bars show min/max runtimes}
     \label{fig:res_factors}
 \end{figure}
 
-The translated LLVM bytecode performed well here, with its average runtime of 19,851 milliseconds closely resembling that of the Java's 18,864 milliseconds. Those LLVM versions that were passed through the LLVM optimizer did not fare so well, with the \verb|-O3| version
+The translated LLVM bytecode also performed relatively well here, with the optmised modules average runtime of 21,843 milliseconds closely resembling that of the Java's 18,047 milliseconds. Those LLVM versions that were passed through the LLVM optimiser did not improve upon the performance of the baseline module significantly.
 
 
 \subsection*{Fibonacci}
@@ -42,12 +38,12 @@ The 'fibonacci' benchmark, as its name suggests, computes the fibonacci numbers 
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=1.0\textwidth]{images/res_fibonacci.png}
-    \caption{Execution times of `fibonacci' benchmark}
+    \includegraphics[width=1.0\textwidth]{images/fibonacci_new.png}
+    \caption[Execution times of `fibonacci' benchmark]{Execution times of `fibonacci' benchmark. Error bars show min/max runtimes}
     \label{fig:res_fibonacci}
 \end{figure}
 
-The results in Figure \ref{fig:res_fibonacci} indicate that the function call performance of LLVM cannot perform at the level the JVM offers. The Java bytecode version of the program reported an average runtime of 1,510 milliseconds, and the highest-performing LLVM version - that optmizied at \verb|-O3| level - achieved a runtime of 3,445 milliseconds.
+The results in Figure \ref{fig:res_fibonacci} indicate that the function call performance of LLVM cannot perform at the level the JVM offers. The Java bytecode version of the program reported an average runtime of 1,649 milliseconds, and the highest-performing LLVM version - the optimised level - achieved an average runtime of 2,892 milliseconds. The baseline version did not fare so well, with an average runtime of over twice that of the Java version.
 
 
 \subsection*{Primes}
@@ -56,20 +52,20 @@ The `primes' benchmark finds and prints the all prime numbers up to a given $N$,
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=1.0\textwidth]{images/res_primes.png}
-    \caption{Execution times of `primes' benchmark}
+    \includegraphics[width=1.0\textwidth]{images/primes_new.png}
+    \caption[Execution times of `primes' benchmark]{Execution times of `primes' benchmark. Error bars show min/max runtimes}
     \label{fig:res_primes}
 \end{figure}
 
-Looking at the results in Figure \ref{fig:res_primes} we can see the performance gap between the Java and LLVM bytecode versions of the benchmark. On average the LLVM programs took over three times as long to compute and display the prime numbers, with the \verb|-O1| optimized version proving the best of the LLVM representations.
+Looking at the results in Figure \ref{fig:res_primes} we can see the performance gap between the Java and LLVM bytecode versions of the benchmark. On average the LLVM translations took just under three times as long to compute and display the prime numbers, with the optimised version proving the best of the LLVM representations.
 
 It must be noted, however, that our compiler is at a disadvantage in this case especially. Due to Dalvik's type inference of registers (see Section \ref{sec:typeinf}), our compiler uses 64-bit integers as a solution. Regardless of whether a value is of \verb|int| or \verb|long| type, the resulting LLVM code will use a 64-bit integer. With a large amount of integer computation, as in the `primes' benchmark, this is likely to create a disparity between the performance of both systems.
 
-To create a fairer comparison between the Java and LLVM versions of the program, we additionally evaluated the benchmark using \verb|long| computation. The results in Figure \ref{fig:res_primes_long} display the average runtimes of the `primes' benchmark using computation of \verb|long| values. The use of 64 bit integers in the LLVM bytecode is evidently detrimental to performance, as the disparity between runtimes as shown in Figure \ref{fig:res_primes} has largely been mitigated. The optimized versions of the LLVM bytecode perform nearly on par with the Java version in this case. This is a huge oversight in the design of the compiler, and the redesign in future work to use 32-bit integers where appropriate will be vital to the optimal performance of the system.
+To create a fairer comparison between the Java and LLVM versions of the program, we additionally evaluated the benchmark using \verb|long| computation. The results in Figure \ref{fig:res_primes_long} display the average runtimes of the `primes' benchmark using computation of \verb|long| values. The use of 64 bit integers in the LLVM bytecode is evidently detrimental to performance, as the disparity between runtimes as shown in Figure \ref{fig:res_primes} has largely been mitigated. The optimised versions of the LLVM bytecode perform nearly on par with the Java version in this case, with the baseline version's performance suffering greatly. This is a huge oversight in the design of the compiler, and the redesign in future work to use 32-bit integers where appropriate will be vital to the optimal performance of the system.
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=1.0\textwidth]{images/res_primes_long.png}
-    \caption{Execution times of long-computation `primes' benchmark}
+    \includegraphics[width=1.0\textwidth]{images/primes_long_new.png}
+    \caption[Execution times of long-computation `primes' benchmark]{Execution times of long-computation `primes' benchmark. Error bars show min/max runtimes}
     \label{fig:res_primes_long}
 \end{figure}

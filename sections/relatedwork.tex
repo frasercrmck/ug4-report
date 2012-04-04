@@ -1,2 +1,20 @@
 \chapter{Related Work}
 \label{chap:related}
+
+The compiler presented in this report is unusual in that is takes into its frontend a bytecode file, one that has previously been compiled by another program. There is currently no pre-existing Dalvik executable frontend for LLVM, and LLVM's Java frontend is stale and unsupported \cite{llvm_fe}. The code for this project must be started from scratch.
+
+LLVM offers a sub-project, VMKit, a framework for building virtual machines \cite{geoffray10vmkit}. VMKit provides a Java virtual machine on top of LLVM to run Java applications. There is also partial support for ahead-of-time compilation from Java code to native code. Another of LLVM's sub-projects, dragonegg \cite{dragonegg}, integrates LLVM optimisers and code generator with GCC 4.5 parsers. It is currently able to compile simple Java programs, but they are unable to execute properly. This is, however, the closest that the LLVM project has to a usable Java frontend.
+
+The majority of existing compilers that work with bytecode as input are just-in-time compilers, whereas the compiler detailed in this report is a \emph{static} bytecode compiler. One such example of a static bytecode compiler is Caffeine\cite{Hsieh:1996:JBN:243846.243864}, an optimising translator from Java bytecode to native machine code. The paper lists the difficulties involved in translating from a stack-based programming platform like Java bytecode to a register-based machine. The Dalvik virtual machine, unlike its Java-based relative, is a register-based platform, and so in the case of the Dalvik-to-LLVM compiler, this challenge is not present.
+
+In the same vein as Caffeine is Soot \cite{Vallee-Rai:1999:SJB:781995.782008}, a framework for optimising Java bytecode. This project translates Java bytecode to futher-optimised Java bytecode. This is a similar approach to our compiler in that both its input and output are intermediate representations. Soot optimises Java bytecode by introducing three intermediate representations: Baf, Jimple, and Grimp. The process of optimisation is to transform the Java bytecode to Baf, Jimple, Grimp, back to Baf, then to bytecode, while at each stage performing an appropriate optimisation.
+
+The results presented by Soot show that there is a call for the optimisation of Java bytecode. Soot shows up to 8\% improvement when the optimized bytecode is run using the interpreter and up to 21\% when run using the JIT compiler. This indicates that the optimisations offered by LLVM can too help improve runtime performance of Dalvik executables. In order to be processable by the LLVM analyser and optimiser, they first need to be converted to LLVM bytecode. This provides motivation for the compiler presented in this report.
+
+
+In addition to the previous two is the Jalape\~{n}o Dynamic Optimising Compiler \cite{Burke:1999:JDO:304065.304113}. This paper presents a compiler for the Jalape\~{n}o virtual machine, a new Java virtual machine by the same group. As opposed to other Java virtual machines which provide a just-in-time compiler and an interpreter, the Jalape\~{n}o virtual machine always translates bytecodes to native code prior to execution. Similar to the previous projects, Jalape\~{n}o takes Java bytecode as input and translates it statically to native machine code.
+
+The Jalape\~{n}o Dynamic Optimising Compiler was evaluated against the IBM enhanced port of the Sun JDK 1.1.16, and reported speedups in three of nine seleceted benchmarks.
+
+
+Of particular note is Swift\cite{Zhang:2012:SRJ:2151024.2151035}. Swift is a register-based JIT compiler for embedded JVMs. The Swift prototype presented in the paper is implemented upon the Dalvik executable format. Swift achieves impressive performance results. Swift achieves a speedup of 3.13 over the best-performing interpreter on the selected benchmarks. Compared with the state-of-the-art just-in-time compiler in Android, JITC-Droid, Swift achieves a speedup of 1.42.

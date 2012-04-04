@@ -1,6 +1,7 @@
-\documentclass[twoside,abbrevs,bsc,logo,notimes]{./styles/infthesis}
+\documentclass[twoside,abbrevs,bsc,logo,notimes,frontabs]{styles/infthesis}
 
 % Packages
+
 \usepackage{graphicx}
 \usepackage{abbrevs}
 \usepackage{acronym}
@@ -10,10 +11,15 @@
 \author{Fraser Cormack}
 \course{Computer Science And Mathematics}
 \project{4th Year Project Report}
-\submityear{2012}
-%\graduationdate{2012}
 
-\includeonly{sections/evaluation}
+\submityear{2012}
+\graduationdate{June 2012}
+\date{\today}
+
+%\includeonly{sections/intro, sections/relatedwork, sections/conclusion}
+\includeonly{sections/background}
+
+\input{sections/misc/abstract}
 
 \begin{document}
 
@@ -22,11 +28,12 @@
         \maketitle
 
         % Preamble
-        \include{sections/misc/acknowledgements}
+        \input{sections/misc/acknowledgements}
         \standarddeclaration
         \include{sections/misc/dedication}
         \tableofcontents
 	    \listoffigures
+	    \lstlistoflistings
 	\end{preliminary}
 
 	% Chapters
@@ -38,8 +45,8 @@
 	\include{sections/evaluation}
 	\include{sections/conclusion}
 	
-	%\appendix
-	%\include{sections/appendix}
+	\appendix
+	\include{sections/appendix}
 
 	% Bibliography
 	\bibliographystyle{plain}

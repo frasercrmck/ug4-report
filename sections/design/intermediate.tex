@@ -1,6 +1,10 @@
 \section{Intermediate Representation}
 \label{sec:irep}
 
-Unlike most compilers, we will not optimize the Dalvik executable file between the parsing and code generation stages, as we will rely on LLVM's powerful optimizations to do the work for us. We can also assume that the source program as given to us has been optimized twice already: firstly in the compilation of the Java package, and secondly in the translation from the .class files to the Dalvik executable file.
+Unlike most compilers, we will not optimise the Dalvik executable file between the parsing and code generation stages, as we will rely on LLVM's powerful optimisations to do the work for us. We can also assume that the source program as given to us has been optimised twice already: firstly in the compilation of the Java package, and secondly in the translation from the .class files to the Dalvik executable file. The intermediate representation used by this compiler serves simple as an in-memory model of the input program, and as a go-between between the parser and code generation phases of the compiler toolchain.
 
 The resulting internal format handed by the Dalvik executable parser is similar to that of the input file, albeit with several changes. Some details are stored implicitly, such as the size of a given list of items. The data is additionally made more encapsulated than it is in the raw file format; items that usually lie in the `data' area of the file are moved to their relative `superclasses'.
+
+The majority of the data structures inherent to the Dalvik executable file are stored in their own separate C++ \verb|std::vector|. This is the most natural representation for the data, as the file structure is mostly variable-length sections of Dalvik data objects. The ease-of-use of the \verb|std::vector| over the memory management of pointer arrays simplifies the job for the programmer. Where appropriate, the C++ \verb|std::map| was used when using an incrementing index to access data objects was not intuitive.
+
+The most important part of the intermediate representation is the Dalvik bytecode instructions that make up the input program. As the Dalvik documentation states, these are stored as 16-bit integers, as Dalvik instructions are 16-bit wide. These are stored, much like other data structures in the intermediate representation, in a \verb|std::vector|.
