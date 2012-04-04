@@ -37,7 +37,7 @@ int b[] = {1, 2, 3};    // Declare and initialize with literal
 The second way in which arrays can feature in Dalvik executable programs is when they exist as members of a class definition. Listing \ref{lst:java_array2} gives an example of an array being declared and defined as a private member of the class \verb|MyClass|:
 
 \begin{lstlisting}[frame=single, caption={Arrays as class members in Java}, label={lst:java_array2}]
-class MyClass {
+public class MyClass {
   private int a[] = {1, 2, 3};
   MyClass() { } // Class constructor method
 }
@@ -93,8 +93,6 @@ store i32* %cast_res, i32** %a
 \end{lstlisting}
 
 The C code in Listing \ref{lst:malloc_c} uses a pointer to represent a variable-length array, and so we choose to do the same in our LLVM bytecode translation. The pointer representation is more intuitive and more closely-resembles the memory-allocation paradigm used by other programming languages over the variable-length array notation given earlier. We now have two representations for the two different types of array, the fixed-length array notation (Listing \ref{lst:llvm_fix}) for constant and fixed-length arrays, and pointer notation (Listing \ref{lst:llvm_ptr}) for variable-length arrays whose size are unknown at declaration-time.
-
-\newpage
 
 \begin{lstlisting}[frame=single, caption={LLVM pointer array}, label=lst:llvm_ptr]
 %a = i32*

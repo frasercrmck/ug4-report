@@ -44,6 +44,7 @@ add-float v1, v0, 3.5
 
 As previously mentioned, at line 1, upon reading the first instruction, we can not infer the type of the value to be loaded into register 0. Seeing as we are unable to allocate the appropriate stack variable, we take note of the hexadecimal value of the constant, and store it in a hashmap in our internal representation. Additionally, we store 0 to our dummy variable, named \verb|%tmp|. This can be seen in Listing \ref{lst:tmp1}.
 
+
 \begin{lstlisting}[frame=single, numbers=left, numberstyle=\tiny, caption={LLVM bytecode handling type inference}, label=lst:tmp1]
 define void @function() {
 allocas:
@@ -56,6 +57,8 @@ label_0:
 We then arrive at the next instruction, the \verb|add-float| instruction, which adds two floating-point numbers and stores the result in a register. At this stage, we are able to infer that register 0 contains a floating-point value. Since register \verb|v0| is currently associated with a store instruction - the one of 0 to \verb|%tmp| - we know that it must contain a constant value. We can determine this because in normal circumstances a store instruction never returns a value.
 
 Given that we now have information about the constant's type, we retrieve the hexadecimal value from the hashmap and allocate a new stack variable with the appropriate type. We then wish to store the constant to this newly-allocated variable. However, this leads us again to the problem highlighted earlier in the Section. The LLVM C++ API provides functionality that aids us in retaining the correct order of instructions when facing a Dalvik instruction that uses type inference. LLVM's API gives us the option of \textit{retrospectively replacing} an earlier instruction with another one. Since the variable associated with register \verb|v0| in our intermediate representation is currently pointing to a store instruction, we can replace it with another store instruction, based on our new knowledge of the variable's type. This new instruction stores the literal value - decoded from the hexadecimal according to the type information - to the newly-allocated stack variable.
+
+\newpage
 
 \begin{lstlisting}[frame=single, numbers=left, numberstyle=\tiny, caption={LLVM bytecode handling type inference (cont.)}, label=lst:tmp2]
 define void @function() {

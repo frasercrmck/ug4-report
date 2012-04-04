@@ -1,7 +1,7 @@
 \chapter{Related Work}
 \label{chap:related}
 
-The compiler presented in this report is unusual in that is takes into its frontend a bytecode file, one that has previously been compiled by another program. There is currently no pre-existing Dalvik executable frontend for LLVM, and LLVM's Java frontend is stale and unsupported \cite{llvm_fe}. The code for this project must be started from scratch.
+The compiler presented in this report is unusual in that is takes into its frontend a bytecode file, one that has previously been compiled by another program. There is currently no pre-existing Dalvik executable frontend for LLVM, and LLVM's Java frontend is stale and unsupported\footnotemark \footnotetext[1]{http://old.nabble.com/Re\%3A-compiling-java-frontend-p25500890.html}. The code for this project must be started from scratch.
 
 LLVM offers a sub-project, VMKit, a framework for building virtual machines \cite{geoffray10vmkit}. VMKit provides a Java virtual machine on top of LLVM to run Java applications. There is also partial support for ahead-of-time compilation from Java code to native code. Another of LLVM's sub-projects, dragonegg \cite{dragonegg}, integrates LLVM optimisers and code generator with GCC 4.5 parsers. It is currently able to compile simple Java programs, but they are unable to execute properly. This is, however, the closest that the LLVM project has to a usable Java frontend.
 

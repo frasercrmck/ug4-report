@@ -16,7 +16,7 @@ The `array' benchmark declares an array of 50,000,000 integers, assigns them val
     \label{fig:res_array}
 \end{figure}
 
-The LLVM bytecode generated from the compiler performed well against the Java version, although the optimised versions did not increase performance significantly. This is unusual behaviour, as the optmized versions removed the indirection involved in the print calls. Rather than calling \verb|java/io/PrintStream/println()|, which in turn calls the external C function \verb|printf()|, the LLVM optimiser instead calls \verb|printf()| alone. This should have increased runtime performance more significantly than it did, although the program was likely too simple for the optimisation to kick in effectively.
+The LLVM bytecode generated from the compiler performed well against the Java version. The optimised LLVM module recorded an average speedup of 2.6\% over the Java version. They did not, however, improve significantly upon the runtime performance of the baseline version. This is unusual behaviour, as the optmized versions removed the indirection involved in the print calls. Rather than calling \verb|java/io/PrintStream/println()|, which in turn calls the external C function \verb|printf()|, the LLVM optimiser instead calls \verb|printf()| alone. This should have increased runtime performance more significantly than it did, although the program was likely too simple for the optimisation to kick in effectively.
 
 \subsection*{Factors}
 
@@ -29,12 +29,12 @@ The `factors' benchmark attempts to find the factors of a given $N$ through a br
     \label{fig:res_factors}
 \end{figure}
 
-The translated LLVM bytecode also performed relatively well here, with the optmised modules average runtime of 21,843 milliseconds closely resembling that of the Java's 18,047 milliseconds. Those LLVM versions that were passed through the LLVM optimiser did not improve upon the performance of the baseline module significantly.
+The translated LLVM bytecode also performed relatively well here, with the optmised modules reporting an average runtime of 21,843 milliseconds: 21\% slower than than that of the Java's 18,047 milliseconds. Those LLVM versions that were passed through the LLVM optimiser managed an average speedup of 6\% over the baseline version, again likely due to the simplicity of the program relative to the power of the optimisations used.
 
 
 \subsection*{Fibonacci}
 
-The 'fibonacci' benchmark, as its name suggests, computes the fibonacci numbers up to and including a given $N$. This program is function-call- and recursion-intensive, and is designed to test the compiler's ability to handle efficient function calls. The following results were taken from running the program with $N = 40$.
+The 'fibonacci' benchmark, as its name suggests, computes the fibonacci numbers up to and including a given $N$. This program is recursion-intensive, and is designed to test the compiler's ability to handle efficient function calls. The following results were taken from running the program with $N = 40$.
 
 \begin{figure}[h!]
     \centering
@@ -43,12 +43,12 @@ The 'fibonacci' benchmark, as its name suggests, computes the fibonacci numbers 
     \label{fig:res_fibonacci}
 \end{figure}
 
-The results in Figure \ref{fig:res_fibonacci} indicate that the function call performance of LLVM cannot perform at the level the JVM offers. The Java bytecode version of the program reported an average runtime of 1,649 milliseconds, and the highest-performing LLVM version - the optimised level - achieved an average runtime of 2,892 milliseconds. The baseline version did not fare so well, with an average runtime of over twice that of the Java version.
+The results in Figure \ref{fig:res_fibonacci} indicate that the function call performance of LLVM cannot perform at the level the JVM offers. The Java bytecode version of the program reported an average runtime of 1,649 milliseconds, and the highest-performing LLVM version - the optimised level - achieved an average runtime of 2,892 milliseconds: taking 1.75 times as long to complete. The baseline version fared much worse, with an average runtime of over 2.5 times that of the Java version.
 
 
 \subsection*{Primes}
 
-The `primes' benchmark finds and prints the all prime numbers up to a given $N$, again through a brute-force approach. It aims to give a good indication of the performance of loops with additional computation, such as division and modulus arithmetic. The results shown were taken from the program computing the prime numbers up to $N = 100,000$.
+The `primes' benchmark finds and prints the all prime numbers up to a given $N$, again through a brute-force approach. It aims to give a good indication of the performance of loops with additional computation, such as division and modular arithmetic. The results shown were taken from the program computing the prime numbers up to $N = 100,000$.
 
 \begin{figure}[h!]
     \centering
@@ -59,7 +59,7 @@ The `primes' benchmark finds and prints the all prime numbers up to a given $N$,
 
 Looking at the results in Figure \ref{fig:res_primes} we can see the performance gap between the Java and LLVM bytecode versions of the benchmark. On average the LLVM translations took just under three times as long to compute and display the prime numbers, with the optimised version proving the best of the LLVM representations.
 
-It must be noted, however, that our compiler is at a disadvantage in this case especially. Due to Dalvik's type inference of registers (see Section \ref{sec:typeinf}), our compiler uses 64-bit integers as a solution. Regardless of whether a value is of \verb|int| or \verb|long| type, the resulting LLVM code will use a 64-bit integer. With a large amount of integer computation, as in the `primes' benchmark, this is likely to create a disparity between the performance of both systems.
+It must be noted, however, that our compiler is at a disadvantage in this case especially. Due to Dalvik's type inference of registers (see Section \ref{sec:typeinf}), our compiler uses 64-bit integers as a solution. Regardless of whether a value is of \verb|int| or \verb|long| type, the resulting LLVM code will use a 64-bit integer. With a large amount of integer computation, as in the `primes' benchmark, this is likely to create a large disparity between the performance of both systems.
 
 To create a fairer comparison between the Java and LLVM versions of the program, we additionally evaluated the benchmark using \verb|long| computation. The results in Figure \ref{fig:res_primes_long} display the average runtimes of the `primes' benchmark using computation of \verb|long| values. The use of 64 bit integers in the LLVM bytecode is evidently detrimental to performance, as the disparity between runtimes as shown in Figure \ref{fig:res_primes} has largely been mitigated. The optimised versions of the LLVM bytecode perform nearly on par with the Java version in this case, with the baseline version's performance suffering greatly. This is a huge oversight in the design of the compiler, and the redesign in future work to use 32-bit integers where appropriate will be vital to the optimal performance of the system.
 

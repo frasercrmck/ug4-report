@@ -1,2 +1,18 @@
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {1.1}{\ignorespaces Sharing Constant Pools\relax }}{8}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Sharing Constant Pools\relax }}{11}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Overview of compiler toolchain\relax }}{15}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces CFG representation of Listing 5.2\hbox {}\relax }}{29}
+\contentsline {figure}{\numberline {5.2}{\ignorespaces CFG for the LLVM bytecode of Listing 5.2\hbox {}\relax }}{30}
+\contentsline {figure}{\numberline {5.3}{\ignorespaces CFG for the corrected LLVM bytecode of Listing 5.2\hbox {}\relax }}{31}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {6.1}{\ignorespaces Execution times of `array' benchmark}}{49}
+\contentsline {figure}{\numberline {6.2}{\ignorespaces Execution times of `factors' benchmark}}{50}
+\contentsline {figure}{\numberline {6.3}{\ignorespaces Execution times of `fibonacci' benchmark}}{51}
+\contentsline {figure}{\numberline {6.4}{\ignorespaces Execution times of `primes' benchmark}}{52}
+\contentsline {figure}{\numberline {6.5}{\ignorespaces Execution times of long-computation `primes' benchmark}}{53}
+\addvspace {10\p@ }
+\addvspace {10\p@ }

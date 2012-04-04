@@ -1,9 +1,13 @@
+\newpage
+
 \section{Inheritance}
 \label{sec:inheritance}
 
 Object-oriented programming languages revolve around the ability for one class to reuse the behavior and attributes of another by \textit{inheriting} the data from a base class, also known as a superclass. The translation of this concept to LLVM bytecode proves a challenge to the compiler writer, since LLVM has no notion of classes. The closest that LLVM comes to having class behaviour  in the object-oriented sense comes through the use of structs.
 
 We have previously discussed the challenges that the difference in paradigms presents to us in the form of objects and structs (see Section \ref{sec:codegen}). The other, more difficult challenge to tackle is that of object inheritance. Inheritance is effectively achieved through the same paradigm a C programmer might use to accomplish the same goal. Listing \ref{lst:c_inh} highlights how inheritance is tackled in the C programming language.
+
+\newpage
 
 \lstset{
 	language=C,
@@ -27,7 +31,6 @@ Derived *d;
 Base *b = (Base *)d;
 \end{lstlisting}
 
-\newpage
 
 \begin{lstlisting}[frame=single, numbers=left, numberstyle=\tiny, caption={LLVM IR Inheritance}, label=lst:llvm_inh]
 %Base = type { /* base members */ }
@@ -40,3 +43,65 @@ Base *b = (Base *)d;
 \end{lstlisting}
 
 We can see at line 6 of the C code and at line 2 of the LLVM bytecode (Listings \ref{lst:c_inh} and \ref{lst:llvm_inh}, respectively), that each struct features as its first field an instance of the super class. This way it can be cast to this class at runtime, as we do at lines 13 and 7 of each respective code sample. The object can then be used as if it were an instance of the super class, giving it access to the necessary data.
+
+This solution does not, however, solve the problem of \emph{method} inheritance. In addition to Java classes being able to access the data members of their superclasses, so too can they call the methods of a superclass. The following Java example illustrates this concept.
+
+\newpage
+
+\lstset{
+	language=Java,
+	basicstyle=\small,
+	stringstyle=\ttfamily
+}
+
+\begin{lstlisting}[frame=single, numbers=left, numberstyle=\tiny, caption={Java Method Inheritance}, label=lst:java_inh]
+public class ClassA {
+  public int x;
+  
+  public ClassA(int _x) {
+    x = _x;
+  }
+  
+  public int getX() {
+    return x;
+  }
+}
+
+public class ClassB extends ClassA {
+  public ClassB() {
+    super();
+  }
+}
+
+...
+
+ClassB b = new ClassB();
+int x = b.getX();
+\end{lstlisting}
+
+In the example in Listing \ref{lst:java_inh} we declare a class \verb|ClassA|, and its subclass \verb|ClassB|. As seen on line 22, the instance of \verb|ClassB| is able to call methods it inherits from its superclass as if they are its own. In this case the method \verb|getX()| is called by \verb|ClassB| which accesses and returns the variable \verb|x| belonging to \verb|ClassA|.
+
+The problem during translation into LLVM IR is that the Dalvik executable file presents the following information to the parser:
+
+\lstset{
+	language=Assembly,
+	basicstyle=\small,
+	stringstyle=\ttfamily
+}
+
+\begin{lstlisting}[frame=single]
+method[0]:  ClassA/<init>() V
+method[1]:  ClassA/getX() I
+method[2]:  ClassB/<init>() V
+method[3]:  ClassB/getX() I
+\end{lstlisting}
+
+\begin{lstlisting}[frame=single]
+invoke-virtual v0, ClassB/getX() I
+\end{lstlisting}
+
+The Dalvik instruction presents the function to the parser as if it were a member of \verb|ClassB| for all intents and purposes, when in fact there is no definition for the method anywhere in the class definition. The parser sees the declaration for \verb|ClassB/getX()| and, as it has no additional knowledge at this stage, adds it to the list of methods. Since the body of the method is defined in the definition for \verb|ClassA|, the method will remain undefined, and upon calling it, the LLVM JIT compiler will complain of an undefined method.
+
+In order to catch this behaviour and present a solution to this problem, the parser needs more intelligent behaviour. The parser needs to be able to detect that although it finds a declaration for \verb|getX()|, there is no \emph{definition} present in the class defintion. It will at this point then recursively search its immediate superclasses in order to check whether a definition for the function is given. Upon reaching the top-most class in the hierarchy, \verb|Java/lang/Object|, the parser will report an exception.
+
+If the method definition is found in a superclass, then the intermediate representation will relate all calls to \verb|ClassB/getX()| to the definition of \verb|ClassA/getX()|, and the problem is solved. This is not a complicated solution to arrive at, but in the interests of time it has not been implemented in the current prototype of this compiler.

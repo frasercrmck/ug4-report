@@ -1,11 +1,33 @@
 \section{LLVM}
 \label{sec:llvm}
 
-LLVM (formerly the Low-Level Virtual Machine \cite{llvm_name}) is a compiler infrastructure designed for compile-time, link-time, run-time and `idle-time' optimisation of programs.  Although originally written in C++, it has since spawned a variety of front-ends, including Python, Ruby, Objective-C, and others. LLVM provides a collection of tools and libraries that facilitate the building of compilers, just-in-time compilers, optimisers, and other such compiler-related programs.
+LLVM (formerly the Low-Level Virtual Machine\footnotemark \footnotetext[1]{http://lists.cs.uiuc.edu/pipermail/llvmdev/2011-December/046440.html}) is a compiler infrastructure designed for compile-time, link-time, run-time and `idle-time' optimisation of programs.  Although originally written in C++, it has since spawned a variety of front-ends, including Python, Ruby, Objective-C, and others. LLVM provides a collection of tools and libraries that facilitate the building of compilers, just-in-time compilers, optimisers, and other such compiler-related programs.
+
+\subsection*{LLVM Sub-projects}
+
+The LLVM project features the following main sub-projects:
+
+\begin{itemize}
+\item LLVM Core
+\item Clang
+\item dragonegg
+\end{itemize}
+
+\subsubsection*{LLVM Core}
+
+The LLVM Core libraries provide a modern source- and target-independent optimizer, alongside support for code generation for many CPUs. The libraries are built around a well-specified code representation known as the LLVM intermediate representation (IR). More information on the LLVM IR is given later in the Section.
+
+\subsubsection*{Clang}
+
+Clang is a new front-end for the C, C++, Objective-C, and Objective-C++ programming languages. Its stengths include its unified parser for all four languages, useful error and warning messages, and its impressive compile speeds: about 3 times faster than GCC when compiling Objective-C code \cite{clang_performance}.
+
+\subsubsection*{dragonegg}
+
+The dragonegg sub-project unifies the GCC 4.5 parsers with LLVM's optimisers and code generator in order to provide front-ends for languages not supported by Clang, such as Ada and Fortran.
 
 \subsection*{LLVM IR}
 
-At its core, LLVM features a single, language-independent virtual instruction set called the LLVM intermediate representation (IR). This intermediate representation is used both as the compiler's internal representation and to communicate code between compiler phases. It is designed to be used in three forms: as an in-memory compiler IR, as an on-disk bitcode representation, and as a human-readable language representation \cite{llvm_ref}. All three forms of LLVM code are equivalent, and this unity across all comiler stages is one of LLVM's strengths. The on-disk bitcode representation in particular is most important to us as it is our target language: it is the code that is executed by the JIT compiler to run our translated Dalvik program.
+At its core, LLVM features a single, language-independent virtual instruction set called the LLVM intermediate representation. This intermediate representation is used both as the compiler's internal representation and to communicate code between compiler phases. It is designed to be used in three forms: as an in-memory compiler IR, as an on-disk bitcode representation, and as a human-readable language representation \cite{llvm_ref}. All three forms of LLVM code are equivalent, and this unity across all comiler stages is one of LLVM's strengths. The on-disk bitcode representation in particular is most important to us as it is our target language: it is the code that is executed by the JIT compiler to run our translated Dalvik program.
 
 One key aspect of the intermediate representation is that it in static single assignment (SSA) form. This is a property of an IR which states that each variable is assigned exactly once. An example of this idea is given below.
 
@@ -22,7 +44,6 @@ y = 2;
 z = x + y;
 \end{lstlisting}
 
-\newpage
 
 \begin{lstlisting}[frame=single, escapechar={¬}, caption={Example of SSA form}, label=lst:ssa_2]
 ¬$x_{0}$¬ = 0;
@@ -36,7 +57,3 @@ The versions into which each variable is split are shown in Listing \ref{lst:ssa
 The advantage to SSA form is that it clearly highlights the dependencies between variables, and greatly simplifies a wide variety of compiler optimisations. For instance, in the example above, SSA form makes it immediately obvious that the first definition of the variable \verb|x| is never used, and is therefore redundant.
 
 LLVM IR is designed to be as powerful and expressive as possible, whilst being lightweight and low-level. High-level concepts such as classes are able to be mapped to the IR (albeit with certain tweaks, as described in later Sections), whilst retaining a `low-level' design, such as featuring type information, which is useful for certain optimisations.
-
-\subsection*{LLVM Sub-projects}
-
-
