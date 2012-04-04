@@ -1,13 +1,13 @@
 \section{Benchmarks}
 \label{sec:benchmarks}
 
-This Section lists the programs on which the compiler was evaluated, and the results of the experiments performed. Due to a lack of a capable standard library (see Section \ref{sec:javalib}), the number of eligible real-world, CPU-intensive Java benchmarks was limited. This, coupled with the lack of well-maintained Java front-end for LLVM meant that we instead opted to write our own example programs on which to test the quality of the compiled code. These programs are not `benchmarks' as such, as they do not test a compiler as thoroughly as the SPEC benchmark suite does, for example. They do, however, give a general insight as to the performance of our compiler's resulting code on everyday user applications.
+This Section lists the programs on which the compiler was evaluated, and the results of the experiments performed. Due to a lack of a capable standard library (see Section \ref{sec:javalib}), the number of eligible real-world, CPU-intensive Java benchmarks was limited. This, coupled with the lack of well-maintained Java front-end for LLVM meant that we instead opted to write our own example programs on which to test the quality of the compiled code. These programs are not `benchmarks' as such, as they do not test a compiler as thoroughly as the SPEC benchmark suite does, for example. They do, however, give a general insight into the performance of our compiler's resulting code on everyday user applications.
 
 The source code for all benchmarks evaluated on the compiler is listed in the Appendix.
 
 \subsection*{Array}
 
-The `array' benchmark declares an array of 50,000,000 integers, assigns them values and then prints them back out. As arrays and looping are so ubiquitous in programming, it is important to test their performance in order to gain insight into how the compiler performs on common applications. The printing of the array values is important, as although the print function call might become a performance bottleneck in this situation, without it neither the Dalvik or optimised LLVM bytecodes ever actually assign the array values.
+The `array' benchmark declares an array of 50,000,000 integers, assigns them values, and then prints them back out. As arrays and looping are so ubiquitous in programming, it is important to test their performance in order to gain insight into how the compiler performs on common applications. The printing of the array values is important, as although the print function call might become a performance bottleneck in this situation, without it neither the Dalvik or optimised LLVM bytecodes ever actually assign the array values.
 
 \begin{figure}[h!]
     \centering
@@ -16,7 +16,7 @@ The `array' benchmark declares an array of 50,000,000 integers, assigns them val
     \label{fig:res_array}
 \end{figure}
 
-The LLVM bytecode generated from the compiler performed well against the Java version. The optimised LLVM module recorded an average speedup of 2.6\% over the Java version. They did not, however, improve significantly upon the runtime performance of the baseline version. This is unusual behaviour, as the optimised versions removed the indirection involved in the print calls. Rather than calling \verb|java/io/PrintStream/println()|, which in turn calls the external C function \verb|printf()|, the LLVM optimiser instead calls \verb|printf()| alone. This should have increased runtime performance more significantly than it did, although the program was likely too simple for the optimisation to kick in effectively.
+The LLVM bytecode generated from the compiler performed well against the Java version. The optimised LLVM module recorded an average speedup of 2.6\% over the Java version. However, they did not significantly improve upon the runtime performance of the baseline version. This is unusual behaviour, as the optimised versions removed the indirection involved in the print calls. Rather than calling \verb|java/io/PrintStream/println()|, which in turn calls the external C function \verb|printf()|, the LLVM optimiser instead calls \verb|printf()| alone. This should have increased runtime performance more significantly than it did, although the program was likely too simple for the optimisation to kick in effectively.
 
 \subsection*{Factors}
 
@@ -34,7 +34,7 @@ The translated LLVM bytecode also performed relatively well here, with the optim
 
 \subsection*{Fibonacci}
 
-The `fibonacci' benchmark, as its name suggests, computes the fibonacci numbers up to and including a given $N$. This program is recursion-intensive, and is designed to test the compiler's ability to handle efficient function calls. The following results were taken from running the program with $N = 40$.
+The `fibonacci' benchmark, as its name suggests, computes the fibonacci numbers up to and including a given $N$. This program is recursion-intensive and is designed to test the compiler's ability to handle efficient function calls. The following results were taken from running the program with $N = 40$.
 
 \begin{figure}[h!]
     \centering

@@ -1,7 +1,7 @@
 \section{Dynamically-typed Registers}
 \label{sec:dyntype}
 
-In a similar vain to the problem of Dalvik value type inference detailed in Section \ref{sec:typeinf}, there exists another difference between how Dalvik and LLVM handle register types. Dalvik registers are all 32-bit wide, and are not required to contain one particular type for the duration of the program. A register that contains an integer can hold a floating-point value sometime later in the program. 
+In a similar vein to the problem of Dalvik value type inference detailed in Section \ref{sec:typeinf}, there exists another difference between how Dalvik and LLVM handle register types. Dalvik registers are all 32-bit wide and are not required to contain one particular type for the duration of the program. A register that contains an integer can hold a floating-point value sometime later in the program. 
 
 To illustrate this example, let us consider how Dalvik might translate the following Java code snippet:
 
@@ -51,7 +51,7 @@ label_0:
 }
 \end{lstlisting}
 
-We have hereunto translated up to line 2 the Dalvik bytecode in Listing \ref{lst:dalvik_dyn}. We now come across line 3, the floating-point store instruction. Let us assume that we know that this store instruction is of floating-point type (see Section \ref{sec:typeinf} for an explanation as to why this is not necessarily the case at this stage in the program). We wish to store the value 5.0 to the value pointed to by register \verb|%v0| in our internal representation, as the Dalvik bytecode commands. However, this register variable points to an allocation of type \verb|i32|, a 32-bit integer. Storing a floating point value to this type would result in an invalid LLVM module.
+We have hereunto translated up to line 2 the Dalvik bytecode in Listing \ref{lst:dalvik_dyn}. We now come across line 3: the floating-point store instruction. Let us assume that we know that this store instruction is of floating-point type (see Section \ref{sec:typeinf} for an explanation as to why this is not necessarily the case at this stage in the program). We wish to store the value 5.0 to the value pointed to by register \verb|%v0| in our internal representation, as the Dalvik bytecode commands. However, this register variable points to an allocation of type \verb|i32|, a 32-bit integer. Storing a floating point value to this type would result in an invalid LLVM module.
 
 We therefore must check the type pointed to by the allocation instruction, and check it against the type that we wish to store. If the types are not equal then we must allocate a new variable on the stack with the appropriate type, then point the register variable in the internal representation to this new allocation for future instructions to refer to.
 
@@ -70,4 +70,4 @@ label_0:
 }
 \end{lstlisting}
 
-As shown in the updated version of the LLVM bytecode, Listing \ref{lst:llvm_dyn2}, we have allocated a floating-point type on the stack, and stored the constant value to that. Register \verb|%v0|, as it is represented internally, now points to the new allocation, \verb|%v0_2|, and the old allocation \verb|%v0| is no longer accessible. This is an unfortunate consequence of the method used to deal with the translation of dynamic register types. For example, if the register was later to be used to store another integer, it would be ideal to be able to go back to using the old integer definition of \verb|%v0| instead of allocating another integer on the stack and using that. Fortunately, LLVM's comprehensive suite of optimisations reduces some of the penalty induced here, for example using constant propagation to eliminate a lot of the allocations, stores and loads of constant values that are common in user programs.
+As shown in the updated version of the LLVM bytecode - Listing \ref{lst:llvm_dyn2} - we have allocated a floating-point type on the stack, and stored the constant value to it. Register \verb|%v0|, as it is represented internally, now points to the new allocation \verb|%v0_2|; the old allocation \verb|%v0| is no longer accessible. This is an unfortunate consequence of the method used to deal with the translation of dynamic register types. For example, if the register was later to be used to store another integer, it would be ideal to be able to go back to using the old integer definition of \verb|%v0| instead of allocating another integer on the stack and using that. Fortunately, LLVM's comprehensive suite of optimisations reduces some of the penalty induced here, as it can use constant propagation to eliminate a lot of the allocations, stores, and loads of constant values that are common in user programs.

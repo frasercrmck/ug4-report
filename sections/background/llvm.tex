@@ -10,7 +10,7 @@ The LLVM project features the following main sub-projects:
 \begin{itemize}
 \item LLVM Core
 \item Clang
-\item dragonegg
+\item Dragonegg
 \end{itemize}
 
 \subsubsection*{LLVM Core}
@@ -23,7 +23,7 @@ Clang is a new front-end for the C, C++, Objective-C, and Objective-C++ programm
 
 \subsubsection*{dragonegg}
 
-The dragonegg sub-project unifies the GCC 4.5 parsers with LLVM's optimisers and code generator in order to provide front-ends for languages not supported by Clang, such as Ada and Fortran.
+The Dragonegg sub-project unifies the GCC 4.5 parsers with LLVM's optimisers and code generator in order to provide front-ends for languages not supported by Clang, such as Ada and Fortran.
 
 \subsection*{LLVM IR}
 
@@ -52,8 +52,8 @@ z = x + y;
 ¬$z_{0}$¬ = ¬$x_{1}$¬ + ¬$y_{0}$¬;
 \end{lstlisting}
 
-The versions into which each variable is split are shown in Listing \ref{lst:ssa_2}. Upon each definition of the variable \verb|x| a new variable is created with an incremented subscript. Each read of \verb|x| always uses the most recently-defined version of the variable.
+The versions into which each variable is split are shown in Listing \ref{lst:ssa_2}. Upon each definition of the variable \verb|x|, a new variable is created with an incremented subscript. Each read of \verb|x| always uses the most recently-defined version of the variable.
 
-The advantage to SSA form is that it clearly highlights the dependencies between variables, and greatly simplifies a wide variety of compiler optimisations. For instance, in the example above, SSA form makes it immediately obvious that the first definition of the variable \verb|x| is never used, and is therefore redundant.
+The advantage to SSA form is that it clearly highlights the dependencies between variables and greatly simplifies a wide variety of compiler optimisations. For instance, in the example above, SSA form makes it immediately obvious that the first definition of the variable \verb|x| is never used, and is therefore redundant.
 
 LLVM IR is designed to be as powerful and expressive as possible, whilst being lightweight and low-level. High-level concepts such as classes are able to be mapped to the IR (albeit with certain tweaks, as described in later Sections), whilst retaining a `low-level' design, such as featuring type information, which is useful for certain optimisations.

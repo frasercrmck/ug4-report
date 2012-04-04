@@ -44,7 +44,7 @@ Base *b = (Base *)d;
 
 We can see at line 6 of the C code and at line 2 of the LLVM bytecode (Listings \ref{lst:c_inh} and \ref{lst:llvm_inh}, respectively), that each struct features as its first field an instance of the super class. This way it can be cast to this class at runtime, as we do at lines 13 and 7 of each respective code sample. The object can then be used as if it were an instance of the super class, giving it access to the necessary data.
 
-This solution does not, however, solve the problem of \emph{method} inheritance. In addition to Java classes being able to access the data members of their superclasses, so too can they call the methods of a superclass. The following Java example illustrates this concept.
+However, this solution does not solve the problem of \emph{method} inheritance. In addition to Java classes being able to access the data members of their superclasses, so too can they call the methods of a superclass. The following Java example illustrates this concept.
 
 \newpage
 

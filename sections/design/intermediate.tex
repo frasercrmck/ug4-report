@@ -1,7 +1,7 @@
 \section{Intermediate Representation}
 \label{sec:irep}
 
-Unlike most compilers, we will not optimise the Dalvik executable file between the parsing and code generation stages, as we will rely on LLVM's powerful optimisations to do the work for us. We can also assume that the source program as given to us has been optimised twice already: firstly in the compilation of the Java package, and secondly in the translation from the .class files to the Dalvik executable file. The intermediate representation used by this compiler serves simple as an in-memory model of the input program, and as a go-between between the parser and code generation phases of the compiler toolchain.
+Unlike most compilers, we will not optimise the Dalvik executable file between the parsing and code generation stages, as we will rely on LLVM's powerful optimisations to do the work for us. We can also assume that the source program as given to us has been optimised twice already: firstly in the compilation of the Java package, and secondly in the translation from the .class files to the Dalvik executable file. The intermediate representation used by this compiler serves simply as an in-memory model of the input program, and as a go-between between the parser and code generation phases of the compiler toolchain.
 
 The resulting internal format handed by the Dalvik executable parser is similar to that of the input file, albeit with several changes. Some details are stored implicitly, such as the size of a given list of items. The data is additionally made more encapsulated than it is in the raw file format; items that usually lie in the `data' area of the file are moved to their relative `superclasses'.
 
